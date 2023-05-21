@@ -21,54 +21,48 @@ function createGalleryMarkup(data) {
 }
 
 galleryEl.insertAdjacentHTML('beforeend', galleryMarkup);
+galleryEl.addEventListener('click', onImageThumbClick);
 
-galleryEl.addEventListener('click', onImageClick);
-
-function onImageClick(event) {
+function onImageThumbClick(event) {
   event.preventDefault();
 
-  const currentImageThumb = event.target;
+  const { target } = event;
 
-  if (!currentImageThumb.classList.contains('gallery__image')) {
+  if (!target.classList.contains('gallery__image')) {
     return;
   }
 
-  const currentImageSrc = currentImageThumb.dataset.source;
-  console.log(currentImageSrc);
+  const targetImageSrc = target.dataset.source;
 
-  const instance = basicLightbox.create(
-    `<img src="${currentImageSrc}" width="1280" height="auto">`
-  );
+  if (targetImageSrc) {
+    const imageOriginal = basicLightbox.create(
+      `<img src="${targetImageSrc}" width="1280" height="auto">`
+    );
+    imageOriginal.show();
+    bodyScrollLock();
 
-  instance.show();
+    imageOriginal.element().addEventListener('click', () => {
+      imageOriginal.close();
+      bodyScrollUnlock();
+    });
+
+    document.addEventListener('keydown', onPressEsc);
+
+    function onPressEsc(event) {
+      if (event.code !== 'Escape') {
+        return;
+      }
+      imageOriginal.close();
+      document.removeEventListener('keydown', onPressEsc);
+      bodyScrollUnlock();
+    }
+  }
 }
 
-// function createGalleryMarkup(data) {
-//   const galleryItemsMarkup = [];
+function bodyScrollLock() {
+  document.body.style.overflow = 'hidden';
+}
 
-//   data.forEach(el => {
-//     const galleryItem = document.createElement('li');
-//     const galleryLink = document.createElement('a');
-//     const galleryImage = document.createElement('img');
-
-//     galleryItem.classList.add('gallery__item');
-
-//     galleryLink.classList.add('gallery__link');
-//     galleryLink.href = el.original;
-
-//     galleryImage.classList.add('gallery__image');
-//     galleryImage.src = el.preview;
-//     // galleryImage.dataSource = el.original; // how to add?
-//     galleryImage.alt = el.description;
-
-//     galleryItem.append(galleryLink);
-//     galleryLink.append(galleryImage);
-//     galleryItemsMarkup.push(galleryItem);
-
-//     console.log('galleryItem: ', galleryItem);
-//   });
-
-//   console.log('galleryItemsMarkup: ', galleryItemsMarkup);
-
-//   return galleryItemsMarkup;
-// }
+function bodyScrollUnlock() {
+  document.body.style.overflow = 'auto';
+}
