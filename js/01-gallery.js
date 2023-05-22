@@ -36,25 +36,30 @@ function onImageThumbClick(event) {
 
   if (targetImageSrc) {
     const imageOriginal = basicLightbox.create(
-      `<img src="${targetImageSrc}" width="1280" height="auto">`
+      `<img src="${targetImageSrc}" width="1280" height="auto">`,
+      {
+        onShow: () => {
+          document.addEventListener('keydown', onPressEsc);
+          bodyScrollLock();
+        },
+        onClose: () => {
+          document.removeEventListener('keydown', onPressEsc);
+          bodyScrollUnlock();
+        },
+      }
     );
+
     imageOriginal.show();
-    bodyScrollLock();
 
     imageOriginal.element().addEventListener('click', () => {
       imageOriginal.close();
-      bodyScrollUnlock();
     });
-
-    document.addEventListener('keydown', onPressEsc);
 
     function onPressEsc(event) {
       if (event.code !== 'Escape') {
         return;
       }
       imageOriginal.close();
-      document.removeEventListener('keydown', onPressEsc);
-      bodyScrollUnlock();
     }
   }
 }
