@@ -1,1 +1,2 @@
-# goit-js-hw-07
+1. Image gallery
+2. SimpleLightbox library
